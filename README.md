@@ -1,5 +1,8 @@
 # Websockets
 
+## Préambule
+Sujet de 2ème année de Master STRI dans la matière Web des objets. Le temps disponible et prévu pour le projet est de 2 semaines.
+
 ## Introduction
 Il s'agit de concevoir et réaliser le prototype d'un système permettant à des personnes
 de se retrouver en un lieu extérieur, pour y accomplir un "« défi écolo »" à l'image des
