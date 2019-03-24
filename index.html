@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<title>HTML5 : Web Sockets</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="styles.css" type="text/css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <form>
+
+    <p id="readyState">readyState : <span id="rs">&nbsp;</span></p>
+
+    <p><strong>Journal</strong></p>
+    <div name="log" id="log"></div>
+  
+    <p>
+      <label for="texte">Envoyer</label>
+      <input type="text" name="texte" id="texte">
+      <input type="submit" value="OK" id="valid">
+    </p>
+  
+    <p><strong>Commandes</strong></p>
+    <ul>
+      <li><kbd>hello</kbd> : saluer</li>
+      <li><kbd>date</kbd> : demander la date</li>
+      <li><kbd>bye</kbd> ou <kbd>ciao</kbd> : quitter</li>
+    </ul>
+  
+  </form>
+
+</div>
+
+<script>
+
+var ws = null;
+
+//  Création d'un nouveau socket
+// (Pour Mozilla < 11 avec version préfixée)
+if('MozWebSocket' in window) {
+
+  ws = new MozWebSocket("ws://127.0.0.1:1337");
+
+} else if('WebSocket' in window) {
+
+  ws = new WebSocket("ws://127.0.0.1:1337");
+
+}
+
+if(typeof ws !=='undefined') {
+
+  // Indication de l'état
+  var rs = document.getElementById('rs');
+
+  // Lors de l'ouverture de connexion
+  ws.onopen = function() {
+    log("Socket ouvert");
+    rs.innerHTML = this.readyState;
+  };
+  
+  // Lors de la réception d'un message
+  ws.onmessage = function(e) {
+    // Ajout au journal du contenu du message
+    log("< "+e.data);
+    rs.innerHTML = this.readyState;
+  };
+
+  // Lors d'une erreur de connexion
+  ws.onerror = function(e) {  
+    log("Erreur de connexion");
+    rs.innerHTML = this.readyState;
+  };
+
+  // Lors de la fermeture de connexion
+  ws.onclose = function(e) {  
+    if(e.wasClean) {
+      log("Socket fermé proprement");
+    } else {
+      log("Socket fermé");
+      if(e.reason) log(e.reason);
+    }
+    rs.innerHTML = this.readyState;
+  };
+
+  // Evénement submit du formulaire
+  document.getElementsByTagName('form')[0].onsubmit = function(e) {
+    var texte = document.getElementById('texte');
+    
+    // Envoi de la chaîne texte
+    ws.send(texte.value);
+    log("> "+texte.value);
+    
+    // Mise à zéro du champ et focus
+    texte.focus();
+    texte.value = '';
+    
+    // Empêche de valider le formulaire
+    e.preventDefault();
+  };
+  
+} else {
+
+  alert("Ce navigateur ne supporte pas Web Sockets");
+
+}
+
+// Fonction d’ajout au journal
+function log(txt) {
+  document.getElementById('log').innerHTML += txt + "<br>\n";
+}
+
+</script>
+
+</body>
+</html>
