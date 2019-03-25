@@ -1,0 +1,63 @@
+###################################################
+Architecture Backend
+###################################################
+
+//Seuil participants
+
+//attente connexion client
+    //Connexion client
+//attente disponibilité client
+   //Reception dispo
+//attente défi client
+    //Réception défi
+        //Récupération infos météo
+        //Comparaison disponibilités clients connectés + Météo
+            //Si dispo + météo alors
+                //Notifier client
+//Si changement météo
+    //Notifier client
+//Si Changement dispo
+    //Si participants < seuil
+        //Annulation défi
+
+
+#################
+Classes
+#################
+Client :
+    id : chaine
+    nom : chaine
+    dispo client : tableau de dates
+
+Défi : 
+    meteo : chaine
+    lieu : chaine
+
+Defivalidé :
+    meteo : chaine
+    lieu : chaine
+    date : date
+    listeclients : tableau de Client
+
+##################
+Fonctions
+##################
+
+bool ConnexionClient(user, pswd);
+    tableau de défis Récupererdéfi(user);
+bool SaisieDispo(user, dispoClient);
+
+bool SaisieDefi(user, defi);
+
+void récuperationmeteo(defi);
+
+inscriptionDefi(client, defi);
+
+comparaisonDispo(listeclient, defi);
+
+changementMeteo(defi, meteo);
+
+changementDispo(client, defi, newdispo);
+
+checkdefivalide(defi);
+
