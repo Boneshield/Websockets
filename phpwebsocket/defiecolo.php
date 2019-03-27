@@ -2,7 +2,7 @@
 <?php
 // Run from command prompt > php -q defiecolo.php
 require "websocket.class.php";
-
+require "deficlass.php";
 
 // Extended basic WebSocket as defiecolo
 class DefiEcolo extends WebSocket{
@@ -41,7 +41,7 @@ class DefiEcolo extends WebSocket{
                     //Notification clients défi
             break;
         //Changement disponibilités
-        case $json-type=="cdispo":
+        case $json->type=="cdispo":
             //Si participants < seuil
                 //annulation défi
             break;

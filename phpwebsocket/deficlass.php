@@ -26,13 +26,29 @@ class Defi {
     var $lieu;
     var $meteo=array();   
     var $date;
-    var $listeclient=array();
+    var $participants=array();
 
     //Constructeur
     function __construct($lieu) {
        $this->lieu=$lieu;
        $this->meteo=meteo($lieu);
     }
+    
+    //Mise a jour de la date
+    function setDate($date){
+        $this->date=$date;
+    }
+
+    //Mise a jour des participants
+    function ajoutParticipants($client) {
+        $this->participants=$client->nom;
+    }
+    
+    //Changement météo
+    function changementMeteo() {
+
+    }
+
 }
 
 function meteo($ville) {
