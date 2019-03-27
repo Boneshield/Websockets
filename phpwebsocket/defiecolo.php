@@ -6,7 +6,8 @@ require "websocket.class.php";
 
 // Extended basic WebSocket as defiecolo
 class DefiEcolo extends WebSocket{
-    
+  //Instanciation tableaux défis, clients
+
   function process($user,$msg){ 
     
     $seuil=0;
@@ -19,10 +20,6 @@ class DefiEcolo extends WebSocket{
     //Décodage du message au format json
     $json=json_decode($msg);
     switch($json) {
-        //Inscription client
-        case $json->type=="iclient":
-            //Validation de chaque paramètres
-            //Enregistrement du client
         //Connexion client
         case $json->type=="cclient":
             //Afficher client connecté
