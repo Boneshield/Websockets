@@ -25,15 +25,18 @@ Architecture Backend
 Classes
 #################
 Client :
+    type : chaine
     id : chaine
     nom : chaine
     dispo client : tableau de dates
 
 Défi : 
+    type : chaine
     meteo : chaine
     lieu : chaine
 
 Defivalidé :
+    type : chaine
     meteo : chaine
     lieu : chaine
     date : date
@@ -60,4 +63,13 @@ changementMeteo(defi, meteo);
 changementDispo(client, defi, newdispo);
 
 checkdefivalide(defi);
+
+
+
+
+
+
+##############################
+Tasks
+##############################
 
