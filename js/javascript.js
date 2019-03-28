@@ -18,18 +18,48 @@ if(typeof ws !=='undefined') {
   var rs = document.getElementById('rs');
 
   // Lors de l'ouverture de connexion
-  ws.onopen = function() {
+/*  ws.onopen = function() {
     log("Socket ouvert");
     rs.innerHTML = this.readyState;
-  };
+  };*/
   
-    ws.onmessage=function(event) { 
+  ws.onmessage=function(event) { 
     var message = JSON.parse(event.data);
     switch(message.type) {
       case "creationDefi":
-        notifCreationDefi(message.lieu);
-        break;
-  
+      notifCreationDefi(message.lieu);
+      break;
+      case "repAuth":
+      if(message.rep == "ok"){
+        //alert(message["client"]["dispo"].lundi);
+        document.cookie = "username="+message["client"].nom;
+        //alert(getCookie("username"));
+        //alert(document.cookie);
+        $(document).ready(function(){
+          $("#headerNA").load("vue/userA.html");
+          $("#mesDispos").load("vue/mesDispos.html");
+          $("#mesDefis").load("vue/mesDefis.html");
+          $("#planDefi").load("vue/planDefi.html");
+        //Récupération disponibilités du client pour affichage 
+      alert("Authentification réussie"); 
+      //alert(message["client"]["dispo"].lundi);
+      recupDispo(message["client"]["dispo"].lundi, "lundi");
+      recupDispo(message["client"]["dispo"].mardi, "mardi");
+      recupDispo(message["client"]["dispo"].mercredi, "mercredi");
+      recupDispo(message["client"]["dispo"].jeudi, "jeudi");
+      recupDispo(message["client"]["dispo"].vendredi, "vendredi");
+      recupDispo(message["client"]["dispo"].samedi, "samedi");
+      recupDispo(message["client"]["dispo"].dimanche, "dimanche");
+
+        });
+        
+
+      } 
+      else{
+        alert("Authentification échouée");
+      }
+      break;
+
     }
   };
 
@@ -50,47 +80,15 @@ if(typeof ws !=='undefined') {
     rs.innerHTML = this.readyState;
   };
 
-  // Evénement submit du formulaire
-  document.getElementsByTagName('form')[0].onsubmit = function(e) {
-    var texte = document.getElementById('texte');
-    
-    // Envoi de la chaîne texte
-    ws.send(texte.value);
-    log("> "+texte.value);
-    
-    // Mise à zéro du champ et focus
-    texte.focus();
-    texte.value = '';
-    
-    // Empêche de valider le formulaire
-    e.preventDefault();
   };
-  
-} else {
 
-  alert("Ce navigateur ne supporte pas Web Sockets");
+/*$(document).ready(function(){
+  $("button").click(function(){
+    $("#div1").load("demo_test.txt");
+  });
+});*/
 
-}
-
-
-//Affichage des notes sous formes d'étoiles
-$('input.afficherNote').rating({
-    'min': 1,
-    'max': 6,
-    'empty-value': 0,
-    'iconLib': 'glyphicon',
-    'activeIcon': 'glyphicon-star',
-    'inactiveIcon': 'glyphicon-star-empty',
-    'clearable': false,
-    'clearableIcon': 'glyphicon-remove',
-    'inline': false,
-    'readonly': true
-});
-
-
-
-
-function checkPass()
+/*function checkPass()
 {
     //Store the password field objects into variables ...
     var pass1 = document.getElementById('mdp1');
@@ -111,7 +109,7 @@ function checkPass()
         message.innerHTML = "Mots de passe similaire"
         var link = document.getElementById('valider');
         link.style.visibility = 'visible';
-    }else{
+      }else{
         //The passwords do not match.
         //Set the color to the bad color and
         //notify the user.
@@ -120,10 +118,10 @@ function checkPass()
         message.innerHTML = "Mots de passe différents"
         var link = document.getElementById('valider');
         link.style.visibility = 'hidden';
-    }
-}  
+      }
+    }  */
 
-function authentification() {
+    function authentification() {
   // Création d'un objet msg qui contient les données 
   // dont le serveur a besoin pour traiter le message
   var msg = {
@@ -162,19 +160,19 @@ function notifCreationDefi(lieu) {
   var newDiv2 = document.createElement("div");
   newDiv2.className = "panel-heading"; 
     // et lui donne un peu de contenu 
-  var newContent = document.createTextNode("Défi crée par: "); 
+    var newContent = document.createTextNode("Défi crée par: "); 
   // ajoute le noeud texte au nouveau div créé
   newDiv2.appendChild(newContent);  
   var newDiv3 = document.createElement("div");
   newDiv3.className = "panel-heading"; 
     // et lui donne un peu de contenu 
-  var newContent = document.createTextNode("Lieu: "+lieu); 
+    var newContent = document.createTextNode("Lieu: "+lieu); 
   // ajoute le noeud texte au nouveau div créé
   newDiv3.appendChild(newContent);  
   var newDiv4 = document.createElement("div");
   newDiv4.className = "panel-heading"; 
     // et lui donne un peu de contenu 
-  var newContent = document.createTextNode("Participants"); 
+    var newContent = document.createTextNode("Participants"); 
   // ajoute le noeud texte au nouveau div créé
   newDiv4.appendChild(newContent);  
 
@@ -184,7 +182,76 @@ function notifCreationDefi(lieu) {
 
 }
 
-function myFunction() {
-  alert("salut"+location.hostname);
+//Récupération des disponibilités de l'utilisateur lors de la connexion
+function recupDispo(dispos, jour){
+
+
+  if(dispos == 0){
+
+          $(document).ready(function(){
+          $("#"+jour).css("background-color", "red");
+           });
+  //  document.getElementById("#lundi").style.backgroundColor = "lime";
+
+  }
+  else{
+      //document.getElementById("#"+jour).style.backgroundColor = "red";
+
+          $(document).ready(function(){
+          $("#"+jour).css("background-color", "lime");
+          });
+
+  }
 }
 
+function changerDispo(jour) {
+  
+//  $(document).ready(function(){
+//          $("#"+jour).css("background-color", "lime");
+//        });
+//var color = $("#"+jour).css( "background-color" );
+//alert($("#"+jour).css( "background-color" ));
+  if($("#"+jour).css( "background-color" ) =="rgb(0, 255, 0)"){
+      $(document).ready(function(){
+          $("#"+jour).css("background-color", "red");
+        });
+
+          var msg = {
+    "type": "cdispo",
+    "name": getCookie("username"),
+     "jour"  : jour,
+     "dispo" : 0
+  };
+  }
+  else{
+        $(document).ready(function(){
+          $("#"+jour).css("background-color", "lime");
+        });
+
+          var msg = {
+    "type": "cdispo",
+    "name": getCookie("username"),
+     "jour"  : jour,
+     "dispo" : 1
+  };
+  }
+
+  ws.send(JSON.stringify(msg));
+}
+
+
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}

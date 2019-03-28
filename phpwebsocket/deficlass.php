@@ -1,5 +1,3 @@
-#!/usr/bin/php -q
-
 <?php
 class Client {
     var $type="client";
@@ -10,8 +8,7 @@ class Client {
     var $dispo=array("lundi"=>0,"mardi"=>0,"mercredi"=>0,"jeudi"=>0,"vendredi"=>0,"samedi"=>0,"dimanche"=>0);
     
     //Constructeur
-    function __construct($id,$nom,$passwd) {
-        $this->id = $id;
+    function __construct($nom,$passwd) {
         $this->nom=$nom;
         $this->passwd=$passwd;
     }
@@ -19,6 +16,10 @@ class Client {
     //Modifier dispo
     function setDispo($key,$val) {
         $this->dispo[$key] = $val;
+    }
+    //getDispo
+    function getDispo() {
+        return $this->dispo;
     }
 
     //Check couple id/mdp
@@ -37,11 +38,15 @@ class Defi {
     var $meteo=array();   
     var $date;
     var $participants=array();
+    var $id;
+    var $createur;
 
     //Constructeur
-    function __construct($lieu) {
+    function __construct($lieu, $id, $createur) {
        $this->lieu=$lieu;
        $this->meteo=meteo($lieu);
+       $this->id=$id;
+       $this->createur=$createur;
     }
     
     //Mise a jour de la date

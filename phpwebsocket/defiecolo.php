@@ -8,6 +8,7 @@ require "deficlass.php";
 class DefiEcolo extends WebSocket{
   //Instanciation tableaux défis, clients
     var $listeClients = array();
+    var $id = 0;
 
     function __construct($address,$port,$listeClients) {
         $this->say("In SubClass constructor\n");
@@ -29,11 +30,12 @@ class DefiEcolo extends WebSocket{
     
     //Décodage du message au format json
     $json=json_decode($msg);
+    $jsonTab=json_decode($msg, TRUE);
     switch($json) {
         //Connexion client
         case $json->type=="cclient":
             $this->say("< Authentification de: ".$json->name." ".$json->password);
-            $this->authentification($json->name, $json->password);
+            $this->authentification($json->name, $json->password, $user);
             //Afficher client connecté
             break;
         //Ajout disponibilités
@@ -54,8 +56,12 @@ class DefiEcolo extends WebSocket{
             break;
         //Changement disponibilités
         case $json->type=="cdispo":
-            //Si participants < seuil
-                //annulation défi
+            //$this->listeClients[$json->name]->setDispo($json->jour, );
+        //$json->jour;
+        $this->listeClients[$json->name]->setDispo($json->jour, $json->dispo);
+        $this->say("Dispo de : ".$this->listeClients[$json->name]->nom." modifié");
+        $this->say( "Dispos : ".var_dump($this->listeClients[$json->name]->dispo));
+
             break;
         default:
             //Mauvaise requête
@@ -86,13 +92,17 @@ class DefiEcolo extends WebSocket{
     $this->send($user->socket,"id : ".$id);*/
   }
 
-  function authentification($nom, $mdp){
+  function authentification($nom, $mdp, $user){
     //$this-> say(print_r($this->listeClients[0]->userTest($nom, $mdp)));
 
     foreach ($this->listeClients as $value) {
         //$this->say(print_r($value));
         if($value->userTest($nom,$mdp) == true){
             $this->say("Authentification de ".$value->nom." réussie");
+           // $_SESSION['idU'] = $value->id;
+            //$_SESSION['nomU'] = $value->nom;
+            //$_SESSION['mdpU'] = $value->passwd;
+            $this->reponseAuth("ok", $user, $nom);
             return true;
         }
         else{
@@ -100,16 +110,23 @@ class DefiEcolo extends WebSocket{
         }
         
     }
+    $this->reponseAuth("ko", $user, "");
     return false;
+  }
+
+  function reponseAuth($rep, $user, $nom){
+    $phparr = array("type"=>"repAuth", "rep"=>$rep, "client"=>$this->listeClients[$nom]);
+    $data = json_encode($phparr);
+    $this->send($user->socket, $data);
   }
 
 }
 
-$client1 = new Client(1,"Tom", "test");
-$client2 = new Client(2,"Roy", "test");
-$client3 = new Client(3,"Mathieu", "test");
-$client4 = new Client(4,"Marius", "test");
-$listeClients = array();
-array_push($listeClients, $client1, $client2,$client3,$client4);
+$client1 = new Client("Tom", "test");
+$client2 = new Client("Roy", "test");
+$client3 = new Client("Mathieu", "test");
+$client4 = new Client("Marius", "test");
+$listeClients = array($client1->nom=>$client1, $client2->nom=>$client2, $client3->nom=>$client3, $client4->nom=>$client4);
+//print_r($listeClients["Marius"]);
 $master = new DefiEcolo("localhost",1337,$listeClients);
 
