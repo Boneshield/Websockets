@@ -7,12 +7,22 @@ require "deficlass.php";
 // Extended basic WebSocket as defiecolo
 class DefiEcolo extends WebSocket{
   //Instanciation tableaux défis, clients
+    var $listeClients = array();
+
+    function __construct($address,$port,$listeClients) {
+        $this->say("In SubClass constructor\n");
+        $this->listeClients = $listeClients;
+       // $this->say(print_r($this->listeClients));
+        parent::__construct($address,$port);
+        //$this->authentification("Tom", "test");
+    }
+
 
   function process($user,$msg){ 
     
     $seuil=0;
     $this->say("< ".$user->socket." :".$msg);
-    
+
  	foreach ( $this->users as $utilisateur ){
 		$this->send($utilisateur->socket,$msg);
 	}
@@ -22,6 +32,8 @@ class DefiEcolo extends WebSocket{
     switch($json) {
         //Connexion client
         case $json->type=="cclient":
+            $this->say("< Authentification de: ".$json->name." ".$json->passwd);
+            //$this->authentification($json->nom, $json->password);
             //Afficher client connecté
             break;
         //Ajout disponibilités
@@ -53,7 +65,7 @@ class DefiEcolo extends WebSocket{
         //Si changement météo
             //Notifier client
     
-    //récupération infos météo
+/*    //récupération infos météo
     $page=file_get_contents('http://api.openweathermap.org/data/2.5/weather?q=Toulouse&units=metric&lang=fr&appid=8a16a1cee83038f331bcba227b3e9243');
     $json=json_decode($page);
     //nom du lieu
@@ -71,9 +83,28 @@ class DefiEcolo extends WebSocket{
     //récupération de l'id de la météo
     //Cela indique si on est en "bonne" condition
     $id=$json->weather[0]->id;
-    $this->send($user->socket,"id : ".$id);
+    $this->send($user->socket,"id : ".$id);*/
   }
+
+  function authentification($nom, $mdp){
+    foreach ($this->listeClients as $value) {
+        $bool = $value->userTest($nom, $mdp);
+        if($bool == true){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+  }
+
 }
 
-$master = new DefiEcolo("localhost",1337);
+$client1 = new Client(1,"Tom", "test");
+$client2 = new Client(2,"Roy", "test");
+$client3 = new Client(3,"Mathieu", "test");
+$client4 = new Client(4,"Marius", "test");
+$listeClients = array();
+array_push($listeClients, $client1, $client2,$client3,$client4);
+$master = new DefiEcolo("localhost",1337,$listeClients);
 

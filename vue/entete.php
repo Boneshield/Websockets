@@ -22,7 +22,7 @@
 
     <!-- JS --> 
 
-    <script src="javascript.js"></script>
+    <script src="/Websockets/js/javascript.js"></script>
 
     <!-- Logo apparaissant sur l'onglet  -->    
     <!--<link rel="icon" type="image/png" href="/Websockets/img/logo2R.png" /> -->

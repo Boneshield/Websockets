@@ -3,13 +3,15 @@
 <?php
 class Client {
     var $type="client";
+    var $id;
     var $nom;
     var $passwd;
 
     var $dispo=array("lundi"=>0,"mardi"=>0,"mercredi"=>0,"jeudi"=>0,"vendredi"=>0,"samedi"=>0,"dimanche"=>0);
     
     //Constructeur
-    function __construct($nom,$passwd) {
+    function __construct($id,$nom,$passwd) {
+        $this->id = $id;
         $this->nom=$nom;
         $this->passwd=$passwd;
     }
@@ -17,6 +19,14 @@ class Client {
     //Modifier dispo
     function setDispo($key,$val) {
         $this->dispo[$key] = $val;
+    }
+
+    //Check couple id/mdp
+    function userTest($nom, $mdp){
+ 
+    if($nom==$this->nom && $mdp==$this->passwd){ return true; }
+    
+    else { return false; }
     }
 }
 
