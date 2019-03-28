@@ -32,8 +32,8 @@ class DefiEcolo extends WebSocket{
     switch($json) {
         //Connexion client
         case $json->type=="cclient":
-            $this->say("< Authentification de: ".$json->name." ".$json->passwd);
-            //$this->authentification($json->nom, $json->password);
+            $this->say("< Authentification de: ".$json->name." ".$json->password);
+            $this->authentification($json->name, $json->password);
             //Afficher client connecté
             break;
         //Ajout disponibilités
@@ -87,15 +87,20 @@ class DefiEcolo extends WebSocket{
   }
 
   function authentification($nom, $mdp){
+    //$this-> say(print_r($this->listeClients[0]->userTest($nom, $mdp)));
+
     foreach ($this->listeClients as $value) {
-        $bool = $value->userTest($nom, $mdp);
-        if($bool == true){
+        //$this->say(print_r($value));
+        if($value->userTest($nom,$mdp) == true){
+            $this->say("Authentification de ".$value->nom." réussie");
             return true;
         }
         else{
-            return false;
+            $this->say("Authentification de ".$value->nom." échouée");
         }
+        
     }
+    return false;
   }
 
 }
