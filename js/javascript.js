@@ -160,7 +160,7 @@ function creationDefi() {
   ws.send(JSON.stringify(msg));
 }
 
-//Notification de la création du défi sur toutes les connexions ouvertes
+//Affichage lors de la notification de la création du défi 
 function notifCreationDefi(lieu, createur, defi) {
   // crée un nouvel élément div 
   //alert(defi.meteo."1"[0]);

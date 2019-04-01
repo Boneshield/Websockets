@@ -41,7 +41,7 @@ class DefiEcolo extends WebSocket{
             //Afficher client connecté
             break;
         case $json->type=="demandeListe":
-            $this->say("envoi des defis premiere co");
+            $this->say("envoi des defis premiere connexion");
             foreach($this->listeDefis as $defis){
                 $this->envoiDefi($defis->createur, $user, $defis);
             }
