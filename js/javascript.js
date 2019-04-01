@@ -18,16 +18,27 @@ if(typeof ws !=='undefined') {
   var rs = document.getElementById('rs');
 
   // Lors de l'ouverture de connexion
-/*  ws.onopen = function() {
-    log("Socket ouvert");
-    rs.innerHTML = this.readyState;
-  };*/
+  ws.onopen = function() {
+  var msg = {
+    "type": "demandeListe",
+  };
+
+  // Envoi de l'objet msg à travers une chaîne formatée en JSON
+  ws.send(JSON.stringify(msg));
+
+  };
   
   ws.onmessage=function(event) { 
     var message = JSON.parse(event.data);
     switch(message.type) {
       case "creationDefi":
-      notifCreationDefi(message.lieu);
+      //alert("appel creationDefi");
+
+      notifCreationDefi(message["defi"].lieu, message.createur, message.defi);
+      break;
+      case "ajoutDefi":
+      //alert("appel ajout defi");
+      ajoutMesDefis(message.date, message.lieu, message.meteo);
       break;
       case "repAuth":
       if(message.rep == "ok"){
@@ -137,17 +148,22 @@ if(typeof ws !=='undefined') {
 function creationDefi() {
   // Création d'un objet msg qui contient les données 
   // dont le serveur a besoin pour traiter le message
+  //alert(document.getElementById("start").value);
+  document.getElementById("start").value.split(',')[0]
   var msg = {
-    "type": "creationDefi",
-    "lieu": document.getElementById("start").value,
+    "type": "defi",
+    "lieu": document.getElementById("start").value.split(',')[0], 
+    "nom" : getCookie("username")
   };
 
   // Envoi de l'objet msg à travers une chaîne formatée en JSON
   ws.send(JSON.stringify(msg));
 }
 
-function notifCreationDefi(lieu) {
+//Notification de la création du défi sur toutes les connexions ouvertes
+function notifCreationDefi(lieu, createur, defi) {
   // crée un nouvel élément div 
+  //alert(defi.meteo."1"[0]);
   var newPanel = document.createElement("div");
   newPanel.className = "panel-group";
   var currentDiv = document.getElementById("listeDefis"); 
@@ -160,7 +176,7 @@ function notifCreationDefi(lieu) {
   var newDiv2 = document.createElement("div");
   newDiv2.className = "panel-heading"; 
     // et lui donne un peu de contenu 
-    var newContent = document.createTextNode("Défi crée par: "); 
+    var newContent = document.createTextNode("Défi crée par: "+createur); 
   // ajoute le noeud texte au nouveau div créé
   newDiv2.appendChild(newContent);  
   var newDiv3 = document.createElement("div");
@@ -175,10 +191,87 @@ function notifCreationDefi(lieu) {
     var newContent = document.createTextNode("Participants"); 
   // ajoute le noeud texte au nouveau div créé
   newDiv4.appendChild(newContent);  
-
   newDiv.appendChild(newDiv2);
   newDiv.appendChild(newDiv3);
   newDiv.appendChild(newDiv4);
+
+//Créations cartes pour les icones météos
+  var newDiv5 = document.createElement("div");
+  newDiv5.className = "card-group"; 
+  newDiv.appendChild(newDiv5);
+  //Carte 1
+  var newDiv6 = document.createElement("div");
+  newDiv6.className = "card"; 
+  newDiv5.appendChild(newDiv6);
+  var newContent = document.createTextNode("Météo du "+defi["meteo"]["J1"].date); 
+  // ajoute le noeud texte au nouveau div créé
+  newDiv6.appendChild(newContent); 
+  var newDiv61 = document.createElement("div");
+  newDiv61.setAttribute("id", "idDefi"+defi["meteo"]["J1"].date+defi.id);
+  newDiv6.appendChild(newDiv61);
+  var iconurl = "http://openweathermap.org/img/w/" + defi["meteo"]["J1"].icone + ".png";
+  $("#idDefi"+defi["meteo"]["J1"].date+defi.id).prepend('<img src='+iconurl+'>')
+  // ajoute le noeud texte au nouveau div créé
+  
+
+  //Carte 2 
+  var newDiv7 = document.createElement("div");
+  newDiv7.className = "card"; 
+  newDiv5.appendChild(newDiv7);
+  var newContent = document.createTextNode("Météo du "+defi["meteo"]["J2"].date); 
+  // ajoute le noeud texte au nouveau div créé
+  newDiv7.appendChild(newContent); 
+  var newDiv71 = document.createElement("div");
+  newDiv71.setAttribute("id", "idDefi"+defi["meteo"]["J2"].date+defi.id);
+  newDiv7.appendChild(newDiv71);
+  var iconurl = "http://openweathermap.org/img/w/" + defi["meteo"]["J2"].icone + ".png";
+  $("#idDefi"+defi["meteo"]["J2"].date+defi.id).prepend('<img src='+iconurl+'>')
+  // ajoute le noeud texte au nouveau div créé 
+  //Carte 3
+  var newDiv8 = document.createElement("div");
+  newDiv8.className = "card"; 
+  newDiv5.appendChild(newDiv8);
+  var newContent = document.createTextNode("Météo du "+defi["meteo"]["J3"].date); 
+  // ajoute le noeud texte au nouveau div créé
+  newDiv8.appendChild(newContent);  
+  var newDiv81 = document.createElement("div");
+  newDiv81.setAttribute("id", "idDefi"+defi["meteo"]["J3"].date+defi.id);
+  newDiv8.appendChild(newDiv81);
+  var iconurl = "http://openweathermap.org/img/w/" + defi["meteo"]["J3"].icone + ".png";
+  $("#idDefi"+defi["meteo"]["J3"].date+defi.id).prepend('<img src='+iconurl+'>')
+  //Carte 4
+    var newDiv9 = document.createElement("div");
+  newDiv9.className = "card"; 
+  newDiv5.appendChild(newDiv9);
+  var newContent = document.createTextNode("Météo du "+defi["meteo"]["J4"].date); 
+  // ajoute le noeud texte au nouveau div créé
+  newDiv9.appendChild(newContent);
+  var newDiv91 = document.createElement("div");
+  newDiv91.setAttribute("id", "idDefi"+defi["meteo"]["J4"].date+defi.id);
+  newDiv9.appendChild(newDiv91);
+  var iconurl = "http://openweathermap.org/img/w/" + defi["meteo"]["J4"].icone + ".png";
+  $("#idDefi"+defi["meteo"]["J4"].date+defi.id).prepend('<img src='+iconurl+'>')
+  //Carte 5
+  var newDiv10 = document.createElement("div");
+  newDiv10.className = "card"; 
+  newDiv5.appendChild(newDiv10);
+  var newContent = document.createTextNode("Météo du "+defi["meteo"]["J5"].date); 
+  // ajoute le noeud texte au nouveau div créé
+  newDiv10.appendChild(newContent);
+  var newDiv101 = document.createElement("div");
+  newDiv101.setAttribute("id", "idDefi"+defi["meteo"]["J5"].date+defi.id);
+  newDiv10.appendChild(newDiv101);
+  var iconurl = "http://openweathermap.org/img/w/" + defi["meteo"]["J5"].icone + ".png";
+  $("#idDefi"+defi["meteo"]["J5"].date+defi.id).prepend('<img src='+iconurl+'>')
+
+
+ /* <div class="card-group">
+          <div class="card" id="lundi">
+            <button class="btn btn-default" onclick="changerDispo('lundi')">
+                <div class="card-body"  >
+                  <h5 class="card-title">Lundi</h5>
+              </div>
+          </button>*/
 
 }
 
@@ -254,4 +347,41 @@ function getCookie(cname) {
     }
   }
   return "";
+}
+
+function ajoutMesDefis(date, lieu, meteo){
+  //alert("appel ajout mes defis");
+  var newPanel = document.createElement("div");
+  newPanel.className = "panel-group";
+  var currentDiv = document.getElementById("bMesDefis"); 
+  currentDiv.appendChild(newPanel);
+  var newDiv = document.createElement("div"); 
+  newDiv.className = "panel panel-default";
+  // ajoute le nouvel élément créé et son contenu dans le DOM 
+  newPanel.appendChild(newDiv); 
+  var newDiv2 = document.createElement("div");
+  newDiv2.className = "panel-heading"; 
+    // et lui donne un peu de contenu 
+    var newContent = document.createTextNode("Date: "+date); 
+  // ajoute le noeud texte au nouveau div créé
+  newDiv2.appendChild(newContent);  
+  var newDiv3 = document.createElement("div");
+  newDiv3.className = "panel-heading"; 
+    // et lui donne un peu de contenu 
+    var newContent = document.createTextNode("Lieu: "+lieu); 
+  // ajoute le noeud texte au nouveau div créé
+  newDiv3.appendChild(newContent);  
+  var newDiv4 = document.createElement("div");
+  newDiv4.className = "panel-heading"; 
+    // et lui donne un peu de contenu 
+    var iconurl = "http://openweathermap.org/img/w/" + meteo + ".png";
+    var img = document.createElement("img");
+    img.src = iconurl;
+  // ajoute le noeud texte au nouveau div créé
+  newDiv4.appendChild(img);  
+  newDiv.appendChild(newDiv2);
+  newDiv.appendChild(newDiv3);
+  newDiv.appendChild(newDiv4);
+
+
 }

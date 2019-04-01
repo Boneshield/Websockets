@@ -23,8 +23,7 @@ require 'vue/entete.php';
     <div class="col-md-4">
     </div>
 
-    <div class="col-md-4" id="listeDefis">
-
+    <div class="col-md-8" id="listeDefis">
 
       </div>
 

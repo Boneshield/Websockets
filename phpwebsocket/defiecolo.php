@@ -8,7 +8,9 @@ require "deficlass.php";
 class DefiEcolo extends WebSocket{
   //Instanciation tableaux défis, clients
     var $listeClients = array();
+    var $listeDefis = array();
     var $id = 0;
+    var $i=0;
 
     function __construct($address,$port,$listeClients) {
         $this->say("In SubClass constructor\n");
@@ -38,23 +40,32 @@ class DefiEcolo extends WebSocket{
             $this->authentification($json->name, $json->password, $user);
             //Afficher client connecté
             break;
-        //Ajout disponibilités
-        case $json->type=="adispo":
-            //Vérification connexion
-            //Validation dispos
-            //enregistrement dispos
+        case $json->type=="demandeListe":
+            $this->say("envoi des defis premiere co");
+            foreach($this->listeDefis as $defis){
+                $this->envoiDefi($defis->createur, $user, $defis);
+            }
+            //Afficher client connecté
             break;
         //Ajout défi
         case $json->type=="defi":
             //Vérification connexion
             //Validation défi
             //Ajout du défi
+            $newDefi = new Defi($json->lieu,$this->id,$json->nom);
+            array_push($this->listeDefis, $newDefi);
+            //var_dump($this->listeDefis);
+            $this->say("Nouveau défi crée par : ".$json->nom."\n ".print_r($newDefi));
+            //Notification de la création du défi sur toutes les connexions ouvertes
+            $this->diffusionDefi($json->nom, $newDefi);
             //Récupération infos météo
             //Comparaison dispo clients + météo
+            $this->ajoutDefi($this->id, $json->nom, $user);
                 //Si dispo + météo
                     //Notification clients défi
+            $this->id++;
             break;
-        //Changement disponibilités
+        //Ajout/Changement disponibilités
         case $json->type=="cdispo":
             //$this->listeClients[$json->name]->setDispo($json->jour, );
         //$json->jour;
@@ -67,29 +78,7 @@ class DefiEcolo extends WebSocket{
             //Mauvaise requête
             break;
     }
-    //Check régulier météo pour chaque défi
-        //Si changement météo
-            //Notifier client
-    
-/*    //récupération infos météo
-    $page=file_get_contents('http://api.openweathermap.org/data/2.5/weather?q=Toulouse&units=metric&lang=fr&appid=8a16a1cee83038f331bcba227b3e9243');
-    $json=json_decode($page);
-    //nom du lieu
-    $name=$json->name;
-    $this->send($user->socket,"nom : ".$name);
-    //Si on veut l'icone à voir
-    $icon=$json->weather[0]->icon;
-    $this->send($user->socket,"icon : ".$icon);
-    //Description du temps
-    $description=$json->weather[0]->description;
-    $this->send($user->socket,"description : ".$description);
-    //Température
-    $temp=$json->main->temp;
-    $this->send($user->socket,"température : ".$temp);
-    //récupération de l'id de la météo
-    //Cela indique si on est en "bonne" condition
-    $id=$json->weather[0]->id;
-    $this->send($user->socket,"id : ".$id);*/
+ 
   }
 
   function authentification($nom, $mdp, $user){
@@ -99,10 +88,18 @@ class DefiEcolo extends WebSocket{
         //$this->say(print_r($value));
         if($value->userTest($nom,$mdp) == true){
             $this->say("Authentification de ".$value->nom." réussie");
-           // $_SESSION['idU'] = $value->id;
-            //$_SESSION['nomU'] = $value->nom;
-            //$_SESSION['mdpU'] = $value->passwd;
+
             $this->reponseAuth("ok", $user, $nom);
+            //Envoi tout les defis avec diffusion defi
+            foreach($this->listeDefis as $defis){
+                $this->envoiDefi($defis->createur, $user, $defis);
+
+                if($defis->createur == $nom){
+                    $this->ajoutDefi($defis->id, $nom, $user);
+                }
+            }
+
+
             return true;
         }
         else{
@@ -118,6 +115,94 @@ class DefiEcolo extends WebSocket{
     $phparr = array("type"=>"repAuth", "rep"=>$rep, "client"=>$this->listeClients[$nom]);
     $data = json_encode($phparr);
     $this->send($user->socket, $data);
+  }
+
+//Notification de la création du défi sur toutes les connexions ouvertes
+
+  function diffusionDefi($createur, $defi){
+    
+    $phparr = array("type"=>"creationDefi", "createur"=>$createur, "defi"=>$defi);
+    $data = json_encode($phparr);
+
+    foreach ( $this->users as $utilisateur ){
+    $this->send($utilisateur->socket,$data);
+    }
+
+  }
+//Envoi d'un défi à un utilisateur
+    function envoiDefi($createur, $user, $defi){
+    
+    $phparr = array("type"=>"creationDefi", "createur"=>$createur, "defi"=>$defi);
+    $data = json_encode($phparr);
+
+    $this->send($user->socket,$data);
+    
+
+  }
+
+//Ajout du défi aux défis planifié par l'utilisateur en fonction de ses dispos et de la météo
+  function ajoutDefi($idDefi, $utilisateur, $user){
+    //var_dump($this->listeDefis[0]);
+    $jour = "rien";
+   for( $i = 1; $i<=5; $i++ ) {
+    $date = "J".$i;
+
+    //$timestamp1=1554109200;
+    $jour = $this->listeDefis[$idDefi]->meteo[$date]["date"];
+    //$this->say($jour);
+    //$this->say((date('l', $jour)));
+    //$jourE = date('l', $jour);
+    //$this->say($jourE);
+    $jourFR = $this->conversionJour($jour);
+    //$this->say($jourFR);
+    //$jourFR = $this->conversionJour($jourE);
+
+    //var_dump($this->listeDefis[$idDefi]->meteo[$date]);
+        if(($this->listeDefis[$idDefi]->meteo[$date]["icone"] == "01n") && ($this->listeClients[$utilisateur]->dispo[$jourFR] == 1)){
+            //$this->say("Jour ".$jourFR."météo ok pour J".$i." ".$this->listeDefis[$this->id]->lieu);
+            $phparr = array("type"=>"ajoutDefi", "date"=>$jour, "meteo"=>$this->listeDefis[$idDefi]->meteo[$date]["icone"], "lieu"=>$this->listeDefis[$idDefi]->lieu);
+             $data = json_encode($phparr);
+            $this->send($user->socket, $data);
+        }
+        else{
+            //$this->say("météo non ok pour ".$this->listeDefis[$this->id]->lieu);
+   
+        }
+    }
+
+
+  }
+
+  function conversionJour($jourE){
+    $jourE = date('l', $jourE);
+    $jour="";
+
+        switch($jourE) {
+        //Connexion client
+        case $jourE=="Monday":
+            $jour="lundi";
+            break;
+        case $jourE=="Tuesday":
+            $jour="mardi";
+            break;
+        case $jourE=="Wednesday":
+            $jour="mercredi";
+            break;
+        case $jourE=="Thursday":
+            $jour="jeudi";
+            break;
+        case $jourE=="Friday":
+            $jour="vendredi";
+            break;
+        case $jourE=="Saturday":
+            $jour="samedi";
+            break;
+        case $jourE=="Sunday":
+            $jour="dimanche";
+            break;
+    }
+    //$this->say("Appel conversion: ".$jour." a la place de".$jourE);
+    return $jour;
   }
 
 }

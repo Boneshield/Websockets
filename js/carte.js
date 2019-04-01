@@ -16,7 +16,7 @@ function initMap() {
     //};
 
     var options = {
-        //types: ['(cities)'],
+        types: ['(cities)'],
         componentRestrictions: {country: "fr"}
     };
     autocomplete = new google.maps.places.Autocomplete(   
